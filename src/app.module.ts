@@ -6,9 +6,11 @@ import { PrismaService } from './prisma.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { AdminModule } from './admin/admin.module';
+import { ProductCategoriesModule } from './product-categories/product-categories.module';
+import { ProductsModule } from './products/products.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), AuthModule, UsersModule, AdminModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), AuthModule, UsersModule, AdminModule, ProductCategoriesModule, ProductsModule],
   controllers: [AppController],
   providers: [AppService, PrismaService],
   exports: [PrismaService],

@@ -36,6 +36,4 @@ export class AdminService {
 
     return users;
   }
-
-  async createProductCategories() {}
 }
