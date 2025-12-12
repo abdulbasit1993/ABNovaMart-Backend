@@ -3,6 +3,8 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import * as fs from 'fs';
+import * as path from 'path';
 import { PrismaService } from 'src/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { cloudinary } from 'src/config/cloudinary.config';
@@ -12,17 +14,25 @@ import { UpdateProductDto } from './dto/update-product.dto';
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(
-    createProductDto: CreateProductDto,
-    files: Express.Multer.File[],
-  ) {
-    const imageUrls = files?.map((file) => file.path) || [];
+  private cleanupTempFiles(): void {
+    setTimeout(() => {
+      fs.readdir('./temp/uploads', (err, files) => {
+        if (err) return;
+        for (const file of files) {
+          fs.unlink(path.join('./temp/uploads', file), () => {});
+        }
+      });
+    }, 60_000); // Clean after 1 minute
+  }
+
+  async create(createProductDto: CreateProductDto, uploadedImages: string[]) {
+    const imageUrls = (uploadedImages || []).filter((u) => u != null);
 
     if (imageUrls.length === 0) {
       throw new BadRequestException('At least one product image is required');
     }
 
-    return this.prisma.product.create({
+    const product = await this.prisma.product.create({
       data: {
         ...createProductDto,
         price: createProductDto.price.toString(),
@@ -34,6 +44,11 @@ export class ProductsService {
         category: true,
       },
     });
+
+    // Cleanup temporary files after product creation
+    this.cleanupTempFiles();
+
+    return product;
   }
 
   async findAll() {
@@ -62,7 +77,7 @@ export class ProductsService {
   async update(
     id: string,
     updateProductDto: UpdateProductDto,
-    files?: Express.Multer.File[],
+    uploadedImages?: string[],
   ) {
     const product = await this.prisma.product.findUnique({
       where: { id },
@@ -71,7 +86,7 @@ export class ProductsService {
 
     let updatedImages = product.images;
 
-    if (files && files.length > 0) {
+    if (uploadedImages && uploadedImages.length > 0) {
       // Optional: Delete old images from Cloudinary
       for (const imageUrl of product.images) {
         const publicId = imageUrl.split('/').pop()?.split('.')[0];
@@ -80,7 +95,7 @@ export class ProductsService {
           await cloudinary.uploader.destroy(`ecommerce/products/${publicId}`);
         }
       }
-      updatedImages = files.map((file) => file.path);
+      updatedImages = uploadedImages.filter((u) => u != null);
     }
 
     return this.prisma.product.update({

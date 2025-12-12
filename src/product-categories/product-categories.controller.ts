@@ -23,8 +23,8 @@ export class ProductCategoriesController {
   @UseGuards(RolesGuard)
   @Roles('ADMIN')
   @Post('add')
-  create(@Body() createProductCategoryDto: CreateProductCategoryDto) {
-    const productCategory = this.productCategoriesService.create(
+  async create(@Body() createProductCategoryDto: CreateProductCategoryDto) {
+    const productCategory = await this.productCategoriesService.create(
       createProductCategoryDto,
     );
 
@@ -36,8 +36,8 @@ export class ProductCategoriesController {
   }
 
   @Get()
-  findAll() {
-    const productCategories = this.productCategoriesService.findAll();
+  async findAll() {
+    const productCategories = await this.productCategoriesService.findAll();
 
     return {
       success: true,
@@ -46,8 +46,8 @@ export class ProductCategoriesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    const productCategory = this.productCategoriesService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    const productCategory = await this.productCategoriesService.findOne(id);
 
     return {
       success: true,
@@ -58,11 +58,11 @@ export class ProductCategoriesController {
   @UseGuards(RolesGuard)
   @Roles('ADMIN')
   @Put(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateProductCategoryDto: UpdateProductCategoryDto,
   ) {
-    const productCategory = this.productCategoriesService.update(
+    const productCategory = await this.productCategoriesService.update(
       id,
       updateProductCategoryDto,
     );
