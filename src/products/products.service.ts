@@ -51,8 +51,17 @@ export class ProductsService {
     return product;
   }
 
-  async findAll() {
-    return this.prisma.product.findMany({
+  async findAll(page: number = 1, limit: number = 10) {
+    const validPage = Math.max(1, page);
+    const validLimit = Math.max(1, Math.min(100, limit));
+
+    const skip = (validPage - 1) * validLimit;
+
+    const totalCount = await this.prisma.product.count();
+
+    const products = await this.prisma.product.findMany({
+      skip,
+      take: validLimit,
       include: {
         category: {
           select: { id: true, name: true, slug: true },
@@ -60,6 +69,20 @@ export class ProductsService {
       },
       orderBy: { created_at: 'desc' },
     });
+
+    const totalPages = Math.ceil(totalCount / validLimit);
+
+    return {
+      data: products,
+      pagination: {
+        page: validPage,
+        limit: validLimit,
+        totalItems: totalCount,
+        totalPages,
+        hasNextPage: validPage < totalPages,
+        hasPreviousPage: validPage > 1,
+      },
+    };
   }
 
   async findOne(id: string) {

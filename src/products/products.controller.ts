@@ -10,6 +10,8 @@ import {
   Delete,
   Put,
   UseGuards,
+  Get,
+  Query,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -59,6 +61,31 @@ export class ProductsController {
     @Req() req: any,
   ) {
     return this.productsService.create(createProductDto, req.uploadedImages);
+  }
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  async findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
+    const pageNumber = page ? parseInt(page) : 1;
+    const limitNumber = limit ? parseInt(limit) : 10;
+
+    const result = await this.productsService.findAll(pageNumber, limitNumber);
+
+    return {
+      success: true,
+      data: result.data,
+      pagination: result.pagination,
+    };
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  async findOne(@Param('id') id: string) {
+    const product = await this.productsService.findOne(id);
+    return {
+      success: true,
+      data: product,
+    };
   }
 
   @Put(':id')
