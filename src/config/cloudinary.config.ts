@@ -6,8 +6,6 @@ const config = {
   api_secret: process.env.CLOUDINARY_API_SECRET,
 };
 
-console.log('cloudinary config ===>>> ', config);
-
 cloudinary.config(config);
 
 export { cloudinary };
