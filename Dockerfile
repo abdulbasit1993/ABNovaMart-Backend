@@ -38,5 +38,8 @@ COPY --from=builder /app/src/generated ./src/generated
 
 EXPOSE 3002
 
+# Debug command to inspect the directory structure before starting
+RUN ls -R /app
+
 # Using the absolute path to ensure Node finds it
-CMD ["node", "dist/main.js"]
+CMD ["node", "/app/dist/main.js"]
