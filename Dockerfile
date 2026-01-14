@@ -39,4 +39,4 @@ COPY --from=builder /app/src/generated ./src/generated
 EXPOSE 3002
 
 # Using the absolute path to ensure Node finds it
-CMD ["node", "/app/dist/main.js"]
+CMD ["node", "dist/main.js"]
