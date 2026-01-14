@@ -43,4 +43,4 @@ EXPOSE 3002
 RUN ls -R /app
 
 # Using the absolute path to ensure Node finds it
-CMD ["node", "/app/dist/main.js"]
+CMD ["node", "/app/dist/src/main.js"]
