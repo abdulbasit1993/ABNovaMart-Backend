@@ -14,7 +14,8 @@ COPY . .
 
 # Generate Prisma client and build NestJS
 RUN DATABASE_URL="postgresql://dummy@localhost:5432/db" npx prisma generate
-RUN npm run build
+
+RUN npm run build && echo "==== DIST CONTENTS ====" && find dist -type f || true
 
 # --- Stage 2: Production ---
 FROM node:22-alpine
