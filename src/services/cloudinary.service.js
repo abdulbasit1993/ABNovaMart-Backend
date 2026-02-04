@@ -5,6 +5,7 @@ const cloudinary = require("cloudinary").v2;
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const { Readable } = require("stream");
 
 // Initialize Cloudinary with environment variables
 cloudinary.config({
@@ -26,18 +27,24 @@ const upload = multer({
  * @returns {Object} - { url, public_id }
  */
 async function uploadImageBuffer(buffer, originalname) {
-  try {
-    const result = await cloudinary.uploader.upload(buffer, {
-      folder: "abnovamart/products",
-      public_id: `${originalname}-${Date.now()}`,
-      overwrite: true,
-    });
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: "abnovamart/products",
+        public_id: `${path.parse(originalname).name}-${Date.now()}`,
+        resource_type: "auto",
+      },
+      (error, result) => {
+        if (error) reject(error);
+        else resolve({ url: result.secure_url, public_id: result.public_id });
+      },
+    );
 
-    return { url: result.secure_url, public_id: result.public_id };
-  } catch (err) {
-    console.error("Cloudinary upload error:", err);
-    throw err;
-  }
+    const readableStream = new Readable();
+    readableStream.push(buffer);
+    readableStream.push(null);
+    readableStream.pipe(uploadStream);
+  });
 }
 
 /**

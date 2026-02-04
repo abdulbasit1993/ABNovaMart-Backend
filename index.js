@@ -20,6 +20,8 @@ app.use("/api/auth", require("./src/routes/auth.routes"));
 
 app.use("/api/product-categories", require("./src/routes/category.routes"));
 
+app.use("/api/products", require("./src/routes/product.routes"));
+
 require("./src/config/db")();
 
 app.listen(process.env.PORT, () => {

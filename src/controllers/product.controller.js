@@ -57,3 +57,62 @@ exports.addNewProduct = async (req, res) => {
     });
   }
 };
+
+exports.getAllProducts = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || "";
+    const categoryId = req.query.categoryId;
+    const skip = (page - 1) * limit;
+
+    const query = { isActive: true };
+
+    // Search by name or description
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    // Filter by category
+    if (categoryId) {
+      query.categoryId = categoryId;
+    }
+
+    const totalProducts = await Product.countDocuments(query);
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    const products = await Product.find(query)
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      message: "Products fetched successfully",
+      data: products,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalProducts,
+        limit,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
+    });
+  } catch (error) {
+    if (error.name === "CastError") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid ID format",
+      });
+    }
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
