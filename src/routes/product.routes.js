@@ -3,6 +3,9 @@ const router = express.Router();
 const {
   addNewProduct,
   getAllProducts,
+  getProductById,
+  deleteProduct,
+  updateProduct,
 } = require("../controllers/product.controller");
 const { authenticate } = require("../middlewares/auth.middleware");
 const { isAdmin } = require("../middlewares/role.middleware");
@@ -18,6 +21,21 @@ router.post(
 );
 
 // GET /products - Get all products with pagination and search
-router.get("/", getAllProducts);
+router.get("/", authenticate, getAllProducts);
+
+// GET /products/:id - Get a specific product by ID
+router.get("/:id", authenticate, getProductById);
+
+// DELETE /products/:id - Delete a product by ID
+router.delete("/:id", authenticate, isAdmin, deleteProduct);
+
+// PUT /products/:id - Update a product by ID with image uploads
+router.put(
+  "/:id",
+  authenticate,
+  isAdmin,
+  upload.array("images", 10),
+  updateProduct,
+);
 
 module.exports = router;
