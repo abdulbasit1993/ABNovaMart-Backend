@@ -145,7 +145,70 @@ const loginUser = async (req, res) => {
   }
 };
 
+// Get User Profile
+const getUserProfile = async (req, res) => {
+  try {
+    const user = req.user;
+
+    return res.status(200).json({
+      success: true,
+      message: "User profile fetched successfully",
+      user: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phone: user.phone,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+
+const getAllUsers = async (req, res) => {
+  try {
+    let page = parseInt(req.query.page) || 1;
+    let limit = parseInt(req.query.limit) || 10;
+
+    const users = await User.find()
+      .select("-password")
+      .skip(limit * (page - 1))
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
+    const count = await User.countDocuments();
+
+    return res.status(200).json({
+      success: true,
+      message: "Users fetched successfully",
+      users,
+      pagination: {
+        currentPage: page,
+        currentLimit: limit,
+        totalPages: Math.ceil(count / limit),
+        totalCount: count,
+        hasNextPage: page < Math.ceil(count / limit),
+        hasPreviousPage: page > 1,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
+  getUserProfile,
+  getAllUsers,
 };
