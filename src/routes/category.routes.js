@@ -12,9 +12,9 @@ const { isAdmin } = require("../middlewares/role.middleware");
 
 router.post("/add", authenticate, isAdmin, createProductCategory);
 
-router.get("/", authenticate, getAllProductCategories);
+router.get("/", getAllProductCategories);
 
-router.get("/:id", authenticate, isAdmin, getProductCategoryById);
+router.get("/:id", getProductCategoryById);
 
 router.put("/:id", authenticate, isAdmin, updateProductCategory);
 
