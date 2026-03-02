@@ -21,10 +21,10 @@ router.post(
 );
 
 // GET /products - Get all products with pagination and search
-router.get("/", authenticate, getAllProducts);
+router.get("/", getAllProducts);
 
 // GET /products/:id - Get a specific product by ID
-router.get("/:id", authenticate, getProductById);
+router.get("/:id", getProductById);
 
 // DELETE /products/:id - Delete a product by ID
 router.delete("/:id", authenticate, isAdmin, deleteProduct);
