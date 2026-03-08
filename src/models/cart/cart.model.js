@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { CartStatus } from "./cart.enums";
+import { CartStatus } from "./cart.enums.js";
 
 const cartSchema = new mongoose.Schema(
   {
