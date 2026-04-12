@@ -31,6 +31,8 @@ app.use("/api/products", require("./src/routes/product.routes"));
 
 app.use("/api/cart", require("./src/routes/cart.routes"));
 
+app.use("/api/orders", require("./src/routes/order.routes"));
+
 require("./src/config/db")();
 
 app.listen(process.env.PORT, () => {

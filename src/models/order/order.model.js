@@ -17,6 +17,9 @@ const orderSchema = new mongoose.Schema(
       enum: PaymentStatus,
       default: "PENDING",
     },
+    paymentIntentId: {
+      type: String,
+    },
     orderStatus: {
       type: String,
       enum: OrderStatus,

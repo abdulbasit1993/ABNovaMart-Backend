@@ -1258,6 +1258,533 @@
         }
       }
     },
+    "/api/orders/checkout": {
+      "post": {
+        "tags": ["Orders"],
+        "summary": "Checkout and create order",
+        "description": "Processes the user's cart, creates an order, and initiates payment via Stripe",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["shippingAddressId"],
+                "properties": {
+                  "shippingAddressId": {
+                    "type": "string",
+                    "description": "ID of the shipping address"
+                  }
+                }
+              },
+              "example": {
+                "shippingAddressId": "507f1f77bcf86cd799439011"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Order created successfully, proceed to payment",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "order": {
+                          "$ref": "#/components/schemas/Order"
+                        },
+                        "clientSecret": {
+                          "type": "string",
+                          "description": "Stripe payment intent client secret"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "message": "Order created successfully. Proceed to payment",
+                  "data": {
+                    "order": {
+                      "_id": "507f1f77bcf86cd799439011",
+                      "userId": "507f1f77bcf86cd799439012",
+                      "totalAmount": 99.99,
+                      "paymentStatus": "PENDING",
+                      "paymentIntentId": "pi_1234567890",
+                      "orderStatus": "PENDING",
+                      "shippingAddressId": "507f1f77bcf86cd799439013",
+                      "created_at": "2024-01-01T00:00:00.000Z",
+                      "updated_at": "2024-01-01T00:00:00.000Z"
+                    },
+                    "clientSecret": "pi_1234567890_secret_..."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error or insufficient stock",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "success": false,
+                  "message": "Insufficient stock for Product Name"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "success": false,
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/me": {
+      "get": {
+        "tags": ["Orders"],
+        "summary": "Get user's orders",
+        "description": "Retrieves all orders for the authenticated user",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Orders fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/OrderWithItems"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "success": false,
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders": {
+      "get": {
+        "tags": ["Orders"],
+        "summary": "Get all orders (Admin)",
+        "description": "Retrieves all orders with details (Admin only)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All orders fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/OrderWithDetails"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "success": false,
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Admin access required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "success": false,
+                  "message": "Access denied. Admin privileges required."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/{id}": {
+      "put": {
+        "tags": ["Orders"],
+        "summary": "Update order status (Admin)",
+        "description": "Updates the payment or order status of an order (Admin only)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Order ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "paymentStatus": {
+                    "type": "string",
+                    "enum": ["PENDING", "PAID", "FAILED"],
+                    "description": "Payment status"
+                  },
+                  "orderStatus": {
+                    "type": "string",
+                    "enum": ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"],
+                    "description": "Order status"
+                  }
+                }
+              },
+              "example": {
+                "paymentStatus": "PAID",
+                "orderStatus": "PROCESSING"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Order updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Order"
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "message": "Order updated successfully",
+                  "data": {
+                    "_id": "507f1f77bcf86cd799439011",
+                    "userId": "507f1f77bcf86cd799439012",
+                    "totalAmount": 99.99,
+                    "paymentStatus": "PAID",
+                    "paymentIntentId": "pi_1234567890",
+                    "orderStatus": "PROCESSING",
+                    "shippingAddressId": "507f1f77bcf86cd799439013",
+                    "created_at": "2024-01-01T00:00:00.000Z",
+                    "updated_at": "2024-01-02T00:00:00.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error or invalid status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "success": false,
+                  "message": "Invalid payment status"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "success": false,
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Admin access required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "success": false,
+                  "message": "Access denied. Admin privileges required."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Order not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "success": false,
+                  "message": "Order not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/product-categories/{id}": {
       "get": {
         "tags": ["Product Categories"],
@@ -1835,6 +2362,316 @@
             "type": "string",
             "format": "date-time",
             "description": "Timestamp when the category was last updated"
+          }
+        }
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Order's unique identifier"
+          },
+          "userId": {
+            "type": "string",
+            "description": "User ID who placed the order"
+          },
+          "totalAmount": {
+            "type": "number",
+            "description": "Total amount of the order"
+          },
+          "paymentStatus": {
+            "type": "string",
+            "enum": ["PENDING", "PAID", "FAILED"],
+            "description": "Payment status"
+          },
+          "paymentIntentId": {
+            "type": "string",
+            "description": "Stripe payment intent ID"
+          },
+          "orderStatus": {
+            "type": "string",
+            "enum": ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"],
+            "description": "Order status"
+          },
+          "shippingAddressId": {
+            "type": "string",
+            "description": "Shipping address ID"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the order was created"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the order was last updated"
+          }
+        }
+      },
+      "OrderItem": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Order item's unique identifier"
+          },
+          "orderId": {
+            "type": "string",
+            "description": "Order ID"
+          },
+          "productId": {
+            "type": "string",
+            "description": "Product ID"
+          },
+          "quantity": {
+            "type": "integer",
+            "description": "Quantity ordered"
+          },
+          "price": {
+            "type": "number",
+            "description": "Price per unit"
+          }
+        }
+      },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Product's unique identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "Product name"
+          },
+          "price": {
+            "type": "number",
+            "description": "Product price"
+          },
+          "description": {
+            "type": "string",
+            "description": "Product description"
+          },
+          "sku": {
+            "type": "string",
+            "description": "Stock keeping unit"
+          },
+          "stock": {
+            "type": "integer",
+            "description": "Available stock"
+          },
+          "categoryId": {
+            "type": "string",
+            "description": "Category ID"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Product images URLs"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether the product is active"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Product tags"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the product was created"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the product was last updated"
+          }
+        }
+      },
+      "Address": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Address's unique identifier"
+          },
+          "userId": {
+            "type": "string",
+            "description": "User ID"
+          },
+          "fullName": {
+            "type": "string",
+            "description": "Full name for the address"
+          },
+          "phone": {
+            "type": "string",
+            "description": "Phone number"
+          },
+          "addressLine": {
+            "type": "string",
+            "description": "Address line"
+          },
+          "city": {
+            "type": "string",
+            "description": "City"
+          },
+          "state": {
+            "type": "string",
+            "description": "State"
+          },
+          "country": {
+            "type": "string",
+            "description": "Country"
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "Postal code"
+          },
+          "isDefault": {
+            "type": "boolean",
+            "description": "Whether this is the default address"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the address was created"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the address was last updated"
+          }
+        }
+      },
+      "OrderWithItems": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "totalAmount": {
+            "type": "number"
+          },
+          "paymentStatus": {
+            "type": "string",
+            "enum": ["PENDING", "PAID", "FAILED"]
+          },
+          "paymentIntentId": {
+            "type": "string"
+          },
+          "orderStatus": {
+            "type": "string",
+            "enum": ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"]
+          },
+          "shippingAddressId": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "OrderItems": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string"
+                },
+                "orderId": {
+                  "type": "string"
+                },
+                "productId": {
+                  "$ref": "#/components/schemas/Product"
+                },
+                "quantity": {
+                  "type": "integer"
+                },
+                "price": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      },
+      "OrderWithDetails": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "totalAmount": {
+            "type": "number"
+          },
+          "paymentStatus": {
+            "type": "string",
+            "enum": ["PENDING", "PAID", "FAILED"]
+          },
+          "paymentIntentId": {
+            "type": "string"
+          },
+          "orderStatus": {
+            "type": "string",
+            "enum": ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"]
+          },
+          "shippingAddressId": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "OrderItems": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string"
+                },
+                "orderId": {
+                  "type": "string"
+                },
+                "productId": {
+                  "$ref": "#/components/schemas/Product"
+                },
+                "quantity": {
+                  "type": "integer"
+                },
+                "price": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "Address": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "User": {
+            "$ref": "#/components/schemas/User"
           }
         }
       }
