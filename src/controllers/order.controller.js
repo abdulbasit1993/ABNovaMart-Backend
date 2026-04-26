@@ -14,14 +14,20 @@ const Stripe = require("stripe");
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
+function calculateShipping(totalAmount) {
+  if (totalAmount >= 1000) return 0; // Free shipping
+  return 2;
+}
+
 async function checkout(req, res) {
   const session = await mongoose.startSession();
-  session.startTransaction();
+
+  let order;
 
   try {
     const userId = req.user.id;
 
-    const { shippingAddressId } = req.body;
+    const { shippingAddressId, shippingCost = 0 } = req.body;
 
     if (!shippingAddressId) {
       return res.status(400).json({
@@ -30,6 +36,8 @@ async function checkout(req, res) {
       });
     }
 
+    session.startTransaction();
+
     // Validate shipping address belongs to the user
     const address = await Address.findOne({
       _id: shippingAddressId,
@@ -37,10 +45,7 @@ async function checkout(req, res) {
     }).session(session);
 
     if (!address) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid shipping address",
-      });
+      throw new Error("Invalid shipping address");
     }
 
     const cart = await Cart.findOne({
@@ -49,61 +54,61 @@ async function checkout(req, res) {
     }).session(session);
 
     if (!cart) {
-      return res.status(400).json({
-        success: false,
-        message: "No active cart found",
-      });
+      throw new Error("No active cart found");
     }
 
     const cartItems = await CartItem.find({ cartId: cart._id })
       .populate("productId")
       .session(session);
 
-    if (cartItems.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Cart is empty",
-      });
+    if (!cartItems.length) {
+      throw new Error("Cart is empty");
     }
 
     // Verify stock availability
     for (let item of cartItems) {
       if (item.productId.stock < item.quantity) {
-        await session.abortTransaction();
-        session.endSession();
-        return res.status(400).json({
-          success: false,
-          message: `Insufficient stock for ${item.productId.name}`,
-        });
+        throw new Error(`Insufficient stock for ${item.productId.name}`);
       }
     }
 
     // Calculate the total amount
     let totalAmount = 0;
+
     for (let item of cartItems) {
-      totalAmount +=
-        parseFloat(item.productId.price.toString()) * item.quantity;
+      totalAmount += Number(item.productId.price) * item.quantity;
     }
 
     // Create an Order with paymentStatus: "PENDING"
-    const order = await Order.create({
-      userId,
-      totalAmount,
-      paymentStatus: "PENDING",
-      orderStatus: OrderStatus.PENDING,
-      shippingAddressId,
-    });
-    await order.save({ session });
+    // and orderStatus: "PENDING"
+    const createdOrders = await Order.create(
+      [
+        {
+          userId,
+          totalAmount,
+          paymentStatus: "PENDING",
+          orderStatus: OrderStatus.PENDING,
+          shippingAddressId,
+        },
+      ],
+      { session },
+    );
+
+    order = createdOrders[0];
 
     // Create OrderItems linked to the order and update stock
     for (let item of cartItems) {
-      const orderItem = new OrderItem({
-        orderId: order._id,
-        productId: item.productId._id,
-        quantity: item.quantity,
-        price: item.productId.price,
-      });
-      await orderItem.save({ session });
+      await OrderItem.create(
+        [
+          {
+            orderId: order._id,
+            productId: item.productId._id,
+            quantity: item.quantity,
+            price: item.productId.price,
+          },
+        ],
+        { session },
+      );
 
       // Update stock
       await Product.findByIdAndUpdate(
@@ -113,24 +118,33 @@ async function checkout(req, res) {
       );
     }
 
-    // Use Stripe to create a payment intent
-
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(totalAmount * 100),
-      currency: "usd",
-      metadata: { orderId: order._id.toString() },
-    });
-
-    // Update order with payment intent ID
-    order.paymentIntentId = paymentIntent.id;
-    await order.save({ session });
-
-    // Clear or update the cart status after order creation
-    cart.status = CartStatus.ORDERED;
     await cart.save({ session });
 
     await session.commitTransaction();
-    session.endSession();
+
+    let paymentIntent;
+
+    try {
+      paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(totalAmount * 100),
+        currency: "usd",
+        metadata: { orderId: order._id.toString(), userId: userId.toString() },
+      });
+    } catch (stripeError) {
+      await Order.findByIdAndUpdate(order._id, {
+        paymentStatus: "FAILED",
+      });
+
+      return res.status(500).json({
+        success: false,
+        message: "Payment initialization failed",
+        error: stripeError.message,
+      });
+    }
+
+    // Update order with payment intent ID
+    order.paymentIntentId = paymentIntent.id;
+    await order.save();
 
     return res.status(200).json({
       success: true,
@@ -142,13 +156,15 @@ async function checkout(req, res) {
     });
   } catch (error) {
     await session.abortTransaction();
-    session.endSession();
-    console.log("Checkout error: ", error);
-    return res.status(500).json({
+
+    console.error("Checkout error: ", error);
+
+    return res.status(400).json({
       success: false,
-      message: "Internal Server Error during checkout",
-      error: error.message,
+      message: error.message,
     });
+  } finally {
+    session.endSession();
   }
 }
 

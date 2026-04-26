@@ -14,6 +14,15 @@ const addressSchema = new mongoose.Schema(
     state: { type: String, required: true },
     country: { type: String, required: true },
     postalCode: { type: String, required: true },
+
+    addressType: {
+      type: String,
+      enum: ["shipping", "billing"],
+      required: true,
+      lowercase: true,
+      trim: true,
+    },
+
     isDefault: { type: Boolean, default: false },
   },
   {

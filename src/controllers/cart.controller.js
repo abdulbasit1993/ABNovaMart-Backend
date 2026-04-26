@@ -28,6 +28,7 @@ const buildCartResponse = async (cart) => {
 
     return {
       _id: item._id,
+      productId: item.productId._id,
       product: item.productId,
       quantity: item.quantity,
       price: item.price,
@@ -177,6 +178,84 @@ exports.addCartItemForUser = async (req, res) => {
   return addItemToCartForUserId(req, res, req.params.userId);
 };
 
+const updateCartItemQuantityForUserId = async (req, res, userId) => {
+  try {
+    const productId = req.params.productId;
+    const { quantity } = req.body;
+
+    if (!isValidObjectId(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID format",
+      });
+    }
+
+    if (!isValidObjectId(productId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid product ID format",
+      });
+    }
+
+    if (quantity < 1) {
+      return res.status(400).json({
+        success: false,
+        message: "Quantity must be at least 1",
+      });
+    }
+
+    const cart = await getOrCreateActiveCart(userId);
+
+    const cartItem = await CartItem.findOne({
+      cartId: cart._id,
+      productId,
+    });
+
+    if (!cartItem) {
+      return res.status(404).json({
+        success: false,
+        message: "Item not found in cart",
+      });
+    }
+
+    const product = await Product.findById(productId);
+
+    if (!product || product.isActive === false) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    if (typeof product.stock === "number" && product.stock >= 0) {
+      if (quantity > product.stock) {
+        return res.status(400).json({
+          success: false,
+          message: "Requested quantity exceeds available stock",
+        });
+      }
+    }
+
+    cartItem.quantity = quantity;
+    cartItem.price = product.price;
+    await cartItem.save();
+
+    const data = await buildCartResponse(cart);
+
+    return res.status(200).json({
+      success: true,
+      message: "Cart updated",
+      data,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+
 const getCartForUserId = async (req, res, userId) => {
   try {
     if (!isValidObjectId(userId)) {
@@ -209,6 +288,15 @@ exports.getMyCart = async (req, res) => {
 
 exports.getCartByUserId = async (req, res) => {
   return getCartForUserId(req, res, req.params.userId);
+};
+
+exports.updateCartItemQuantity = async (req, res) => {
+  const userId = req.user?._id;
+  return updateCartItemQuantityForUserId(req, res, userId);
+};
+
+exports.updateCartItemQuantityForUser = async (req, res) => {
+  return updateCartItemQuantityForUserId(req, res, req.params.userId);
 };
 
 const clearCartForUserId = async (req, res, userId) => {
@@ -258,4 +346,3 @@ exports.clearMyCart = async (req, res) => {
 exports.clearCartForUser = async (req, res) => {
   return clearCartForUserId(req, res, req.params.userId);
 };
-
