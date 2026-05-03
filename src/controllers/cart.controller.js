@@ -8,9 +8,12 @@ const { CartItem } = require("../models/cart/cartItem.model.js");
 const isValidObjectId = (value) => mongoose.Types.ObjectId.isValid(value);
 
 const getOrCreateActiveCart = async (userId) => {
-  let cart = await Cart.findOne({ userId, status: "ACTIVE" });
+  let cart = await Cart.findOne({ userId });
   if (!cart) {
     cart = await Cart.create({ userId });
+  } else if (cart.status !== "ACTIVE") {
+    cart.status = "ACTIVE";
+    await cart.save();
   }
   return cart;
 };

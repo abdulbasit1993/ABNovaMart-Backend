@@ -25,9 +25,11 @@ async function checkout(req, res) {
   let order;
 
   try {
-    const userId = req.user.id;
+    const userId = req.user?._id;
 
-    const { shippingAddressId, shippingCost = 0 } = req.body;
+    console.log("Checkout initiated by user: ", userId);
+
+    const { shippingAddressId, billingAddressId, sameAsShipping } = req.body;
 
     if (!shippingAddressId) {
       return res.status(400).json({
@@ -39,19 +41,48 @@ async function checkout(req, res) {
     session.startTransaction();
 
     // Validate shipping address belongs to the user
-    const address = await Address.findOne({
+    const shippingAddress = await Address.findOne({
       _id: shippingAddressId,
       userId,
     }).session(session);
 
-    if (!address) {
+    if (!shippingAddress) {
       throw new Error("Invalid shipping address");
+    }
+
+    if (shippingAddress.addressType !== "shipping") {
+      throw new Error("Address provided is not a shipping address");
+    }
+
+    let billingAddress;
+
+    if (sameAsShipping) {
+      billingAddress = shippingAddress;
+    } else {
+      if (!billingAddressId) {
+        throw new Error("Billing address is required");
+      }
+
+      billingAddress = await Address.findOne({
+        _id: billingAddressId,
+        userId,
+      }).session(session);
+
+      if (!billingAddress) {
+        throw new Error("Invalid billing address");
+      }
+
+      if (billingAddress.addressType !== "billing") {
+        throw new Error("Address provided is not a billing address");
+      }
     }
 
     const cart = await Cart.findOne({
       userId,
-      status: CartStatus.ACTIVE,
+      status: "ACTIVE",
     }).session(session);
+
+    console.log("Cart: ", cart);
 
     if (!cart) {
       throw new Error("No active cart found");
@@ -59,24 +90,33 @@ async function checkout(req, res) {
 
     const cartItems = await CartItem.find({ cartId: cart._id })
       .populate("productId")
+      .lean()
       .session(session);
 
     if (!cartItems.length) {
       throw new Error("Cart is empty");
     }
 
-    // Verify stock availability
-    for (let item of cartItems) {
-      if (item.productId.stock < item.quantity) {
-        throw new Error(`Insufficient stock for ${item.productId.name}`);
-      }
-    }
-
-    // Calculate the total amount
+    // Calculate total amount + Stock Update (Atomic)
     let totalAmount = 0;
 
     for (let item of cartItems) {
-      totalAmount += Number(item.productId.price) * item.quantity;
+      const product = item.productId;
+
+      const updatedProduct = await Product.findOneAndUpdate(
+        {
+          _id: product._id,
+          stock: { $gte: item.quantity },
+        },
+        { $inc: { stock: -item.quantity } },
+        { session, new: true },
+      );
+
+      if (!updatedProduct) {
+        throw new Error(`Insufficient stock for product: ${product.name}`);
+      }
+
+      totalAmount += Number(product.price) * item.quantity;
     }
 
     // Create an Order with paymentStatus: "PENDING"
@@ -87,8 +127,13 @@ async function checkout(req, res) {
           userId,
           totalAmount,
           paymentStatus: "PENDING",
-          orderStatus: OrderStatus.PENDING,
-          shippingAddressId,
+          orderStatus: "PENDING",
+          shippingAddressId: shippingAddress._id,
+          billingAddressId: billingAddress._id,
+
+          // Snapshot of address details at the time of order
+          shippingAddressSnapshot: shippingAddress.toObject(),
+          billingAddressSnapshot: billingAddress.toObject(),
         },
       ],
       { session },
@@ -97,27 +142,19 @@ async function checkout(req, res) {
     order = createdOrders[0];
 
     // Create OrderItems linked to the order and update stock
-    for (let item of cartItems) {
-      await OrderItem.create(
-        [
-          {
-            orderId: order._id,
-            productId: item.productId._id,
-            quantity: item.quantity,
-            price: item.productId.price,
-          },
-        ],
-        { session },
-      );
+    const orderItemsData = cartItems.map((item) => ({
+      orderId: order._id,
+      productId: item.productId._id,
+      quantity: item.quantity,
+      price: item.productId.price,
+    }));
 
-      // Update stock
-      await Product.findByIdAndUpdate(
-        item.productId._id,
-        { $inc: { stock: -item.quantity } },
-        { session },
-      );
-    }
+    await OrderItem.insertMany(orderItemsData, { session });
 
+    // Clear cart
+    await CartItem.deleteMany({ cartId: cart._id }).session(session);
+
+    cart.status = "ORDERED";
     await cart.save({ session });
 
     await session.commitTransaction();
@@ -171,8 +208,8 @@ async function checkout(req, res) {
 // Retrieve orders for the authenticated user
 async function getUserOrders(req, res) {
   try {
-    const userId = req.user.id;
-    const orders = await Order.findAll({
+    const userId = req.user?._id;
+    const orders = await Order.find({
       where: { userId },
       include: [{ model: OrderItem, include: [Product] }],
       order: [["createdAt", "desc"]],
@@ -195,7 +232,7 @@ async function getUserOrders(req, res) {
 // Retrieve all orders (admin access only)
 async function getAllOrders(req, res) {
   try {
-    const orders = await Order.findAll({
+    const orders = await Order.find({
       include: [
         { model: OrderItem, include: [Product] },
         { model: Address },
