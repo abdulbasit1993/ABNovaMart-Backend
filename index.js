@@ -10,7 +10,7 @@ const app = express();
 
 // Stripe webhook endpoint (Must be defined before express.json() middleware)
 app.post(
-  "/api/webhook",
+  "/webhook",
   express.raw({ type: "application/json" }),
   async (req, res) => {
     const sig = req.headers["stripe-signature"];
