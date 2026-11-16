@@ -167,7 +167,7 @@ exports.getProductsGroupedByCategory = async (req, res) => {
         },
       },
       // keep only N products per category, keep full count for "View all (123)"
-      { $addFields: { products: { $slice: ["products", limitPerCategory] } } },
+      { $addFields: { products: { $slice: ["$products", limitPerCategory] } } },
       {
         $addFields: {
           products: {
