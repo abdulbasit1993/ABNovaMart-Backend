@@ -13,7 +13,9 @@
   "paths": {
     "/api/auth/register": {
       "post": {
-        "tags": ["Authentication"],
+        "tags": [
+          "Authentication"
+        ],
         "summary": "Register a new user",
         "description": "Creates a new user account and returns an authentication token",
         "requestBody": {
@@ -22,7 +24,12 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["email", "password", "firstName", "lastName"],
+                "required": [
+                  "email",
+                  "password",
+                  "firstName",
+                  "lastName"
+                ],
                 "properties": {
                   "email": {
                     "type": "string",
@@ -51,7 +58,10 @@
                   },
                   "role": {
                     "type": "string",
-                    "enum": ["ADMIN", "USER"],
+                    "enum": [
+                      "ADMIN",
+                      "USER"
+                    ],
                     "default": "USER",
                     "description": "User's role (optional, defaults to USER)"
                   }
@@ -165,7 +175,9 @@
     },
     "/api/auth/login": {
       "post": {
-        "tags": ["Authentication"],
+        "tags": [
+          "Authentication"
+        ],
         "summary": "Login user",
         "description": "Authenticates a user and returns an authentication token",
         "requestBody": {
@@ -174,7 +186,10 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["email", "password"],
+                "required": [
+                  "email",
+                  "password"
+                ],
                 "properties": {
                   "email": {
                     "type": "string",
@@ -306,7 +321,9 @@
     },
     "/api/user/me": {
       "get": {
-        "tags": ["User"],
+        "tags": [
+          "User"
+        ],
         "summary": "Get current user profile",
         "description": "Retrieves the profile of the currently authenticated user",
         "security": [
@@ -396,7 +413,9 @@
     },
     "/api/user": {
       "get": {
-        "tags": ["User"],
+        "tags": [
+          "User"
+        ],
         "summary": "Get all users",
         "description": "Retrieves all users with pagination (Admin only)",
         "security": [
@@ -572,7 +591,9 @@
     },
     "/api/cart": {
       "get": {
-        "tags": ["Cart"],
+        "tags": [
+          "Cart"
+        ],
         "summary": "Get current user's cart",
         "description": "Retrieves the cart for the currently authenticated user",
         "security": [
@@ -588,17 +609,27 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean" },
-                    "message": { "type": "string" },
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
                     "data": {
                       "type": "object",
                       "properties": {
-                        "cart": { "type": "object" },
+                        "cart": {
+                          "type": "object"
+                        },
                         "items": {
                           "type": "array",
-                          "items": { "type": "object" }
+                          "items": {
+                            "type": "object"
+                          }
                         },
-                        "summary": { "type": "object" }
+                        "summary": {
+                          "type": "object"
+                        }
                       }
                     }
                   }
@@ -615,7 +646,9 @@
         }
       },
       "delete": {
-        "tags": ["Cart"],
+        "tags": [
+          "Cart"
+        ],
         "summary": "Clear current user's cart",
         "description": "Removes all items from the cart for the currently authenticated user",
         "security": [
@@ -638,7 +671,9 @@
     },
     "/api/cart/items": {
       "post": {
-        "tags": ["Cart"],
+        "tags": [
+          "Cart"
+        ],
         "summary": "Add item to current user's cart",
         "description": "Adds a product to the cart (or increases quantity if already present)",
         "security": [
@@ -652,7 +687,10 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["productId", "quantity"],
+                "required": [
+                  "productId",
+                  "quantity"
+                ],
                 "properties": {
                   "productId": {
                     "type": "string",
@@ -693,7 +731,9 @@
     },
     "/api/cart/user/{userId}": {
       "get": {
-        "tags": ["Cart"],
+        "tags": [
+          "Cart"
+        ],
         "summary": "Get a specific user's cart (Admin)",
         "description": "Retrieves the cart for a specific user (Admin only)",
         "security": [
@@ -706,7 +746,9 @@
             "name": "userId",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" },
+            "schema": {
+              "type": "string"
+            },
             "description": "User ID"
           }
         ],
@@ -714,14 +756,24 @@
           "200": {
             "description": "Cart fetched successfully"
           },
-          "400": { "description": "Invalid user ID format" },
-          "401": { "description": "Unauthorized - Invalid or missing token" },
-          "403": { "description": "Forbidden - Admin access required" },
-          "500": { "description": "Internal server error" }
+          "400": {
+            "description": "Invalid user ID format"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "403": {
+            "description": "Forbidden - Admin access required"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
         }
       },
       "delete": {
-        "tags": ["Cart"],
+        "tags": [
+          "Cart"
+        ],
         "summary": "Clear a specific user's cart (Admin)",
         "description": "Removes all items from a specific user's cart (Admin only)",
         "security": [
@@ -734,22 +786,36 @@
             "name": "userId",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" },
+            "schema": {
+              "type": "string"
+            },
             "description": "User ID"
           }
         ],
         "responses": {
-          "200": { "description": "Cart cleared successfully" },
-          "400": { "description": "Invalid user ID format" },
-          "401": { "description": "Unauthorized - Invalid or missing token" },
-          "403": { "description": "Forbidden - Admin access required" },
-          "500": { "description": "Internal server error" }
+          "200": {
+            "description": "Cart cleared successfully"
+          },
+          "400": {
+            "description": "Invalid user ID format"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "403": {
+            "description": "Forbidden - Admin access required"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
         }
       }
     },
     "/api/cart/items/{productId}": {
       "patch": {
-        "tags": ["Cart"],
+        "tags": [
+          "Cart"
+        ],
         "summary": "Update quantity of a cart item",
         "description": "Updates the quantity of a specific product in the current user's cart",
         "security": [
@@ -774,7 +840,9 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["quantity"],
+                "required": [
+                  "quantity"
+                ],
                 "properties": {
                   "quantity": {
                     "type": "integer",
@@ -879,7 +947,9 @@
                 "example": {
                   "success": false,
                   "message": "Validation Error",
-                  "errors": ["Quantity must be at least 1"]
+                  "errors": [
+                    "Quantity must be at least 1"
+                  ]
                 }
               }
             }
@@ -954,7 +1024,9 @@
     },
     "/api/cart/user/{userId}/items/{productId}": {
       "patch": {
-        "tags": ["Cart"],
+        "tags": [
+          "Cart"
+        ],
         "summary": "Update quantity of a cart item for a specific user (Admin)",
         "description": "Updates the quantity of a specific product in a specific user's cart (Admin only)",
         "security": [
@@ -988,7 +1060,9 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["quantity"],
+                "required": [
+                  "quantity"
+                ],
                 "properties": {
                   "quantity": {
                     "type": "integer",
@@ -1093,7 +1167,9 @@
                 "example": {
                   "success": false,
                   "message": "Validation Error",
-                  "errors": ["Quantity must be at least 1"]
+                  "errors": [
+                    "Quantity must be at least 1"
+                  ]
                 }
               }
             }
@@ -1190,7 +1266,9 @@
     },
     "/api/cart/user/{userId}/items": {
       "post": {
-        "tags": ["Cart"],
+        "tags": [
+          "Cart"
+        ],
         "summary": "Add item to a specific user's cart (Admin)",
         "description": "Adds a product to a specific user's cart (Admin only)",
         "security": [
@@ -1203,7 +1281,9 @@
             "name": "userId",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" },
+            "schema": {
+              "type": "string"
+            },
             "description": "User ID"
           }
         ],
@@ -1213,28 +1293,963 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["productId", "quantity"],
+                "required": [
+                  "productId",
+                  "quantity"
+                ],
                 "properties": {
-                  "productId": { "type": "string" },
-                  "quantity": { "type": "integer", "minimum": 1 }
+                  "productId": {
+                    "type": "string"
+                  },
+                  "quantity": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
                 }
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "Item added to cart successfully" },
-          "400": { "description": "Validation error / insufficient stock" },
-          "401": { "description": "Unauthorized - Invalid or missing token" },
-          "403": { "description": "Forbidden - Admin access required" },
-          "404": { "description": "Product not found" },
-          "500": { "description": "Internal server error" }
+          "200": {
+            "description": "Item added to cart successfully"
+          },
+          "400": {
+            "description": "Validation error / insufficient stock"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "403": {
+            "description": "Forbidden - Admin access required"
+          },
+          "404": {
+            "description": "Product not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/products/add": {
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Add a new product",
+        "description": "Creates a new product with optional image uploads to Cloudinary (Admin only)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Product name"
+                  },
+                  "price": {
+                    "type": "number",
+                    "description": "Product price (must be positive)"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Product description (optional)"
+                  },
+                  "sku": {
+                    "type": "string",
+                    "description": "Stock keeping unit (unique)"
+                  },
+                  "stock": {
+                    "type": "integer",
+                    "description": "Available stock (default: 0)",
+                    "minimum": 0
+                  },
+                  "categoryId": {
+                    "type": "string",
+                    "description": "ID of the category this product belongs to"
+                  },
+                  "isActive": {
+                    "type": "boolean",
+                    "description": "Whether the product is active (default: true)"
+                  },
+                  "tags": {
+                    "type": "array",
+                    "description": "Product tags",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "images": {
+                    "type": "array",
+                    "description": "Product image files to upload to Cloudinary (max 10)",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                },
+                "required": [
+                  "name",
+                  "price",
+                  "sku",
+                  "categoryId"
+                ]
+              }
+            }
+          },
+          "description": "multipart/form-data body. Send image files in the 'images' field (max 10). If no files are sent, the 'images' file field may be omitted; you may also send image URLs in the 'images' field as repeated form fields."
+        },
+        "responses": {
+          "201": {
+            "description": "Product created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Product"
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "message": "Product created successfully",
+                  "data": {
+                    "_id": "507f1f77bcf86cd799439011",
+                    "name": "Wireless Mouse",
+                    "price": 999.99,
+                    "description": "Ergonomic wireless mouse with USB receiver",
+                    "sku": "WM-1001",
+                    "stock": 50,
+                    "categoryId": "507f1f77bcf86cd799439012",
+                    "images": [
+                      "https://res.cloudinary.com/demo/image/upload/sample.jpg"
+                    ],
+                    "isActive": true,
+                    "tags": [
+                      "electronics",
+                      "accessories"
+                    ],
+                    "created_at": "2024-01-01T00:00:00.000Z",
+                    "updated_at": "2024-01-01T00:00:00.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": false,
+                  "message": "Validation Error",
+                  "errors": [
+                    "Product name is required"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Get all products",
+        "description": "Retrieves active products with pagination, optional search by name or description, and optional category filter (accessible to all users)",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination (default: 1)",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page (default: 10)",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Search term to filter products by name or description (case-insensitive)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "categoryId",
+            "in": "query",
+            "description": "Filter products by category ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Products fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Product"
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "currentPage": {
+                          "type": "integer"
+                        },
+                        "totalPages": {
+                          "type": "integer"
+                        },
+                        "totalProducts": {
+                          "type": "integer"
+                        },
+                        "limit": {
+                          "type": "integer"
+                        },
+                        "hasNextPage": {
+                          "type": "boolean"
+                        },
+                        "hasPrevPage": {
+                          "type": "boolean"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "message": "Products fetched successfully",
+                  "data": [
+                    {
+                      "_id": "507f1f77bcf86cd799439011",
+                      "name": "Wireless Mouse",
+                      "price": 999.99,
+                      "description": "Ergonomic wireless mouse with USB receiver",
+                      "sku": "WM-1001",
+                      "stock": 50,
+                      "categoryId": "507f1f77bcf86cd799439012",
+                      "images": [
+                        "https://res.cloudinary.com/demo/image/upload/sample.jpg"
+                      ],
+                      "isActive": true,
+                      "tags": [
+                        "electronics",
+                        "accessories"
+                      ],
+                      "created_at": "2024-01-01T00:00:00.000Z",
+                      "updated_at": "2024-01-01T00:00:00.000Z"
+                    }
+                  ],
+                  "pagination": {
+                    "currentPage": 1,
+                    "totalPages": 5,
+                    "totalProducts": 50,
+                    "limit": 10,
+                    "hasNextPage": true,
+                    "hasPrevPage": false
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid category ID format (CastError)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "success": false,
+                  "message": "Invalid ID format"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/grouped-by-category": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Get products grouped by category",
+        "description": "Retrieves active products grouped under their categories, capped per category, built for the category-wise homepage (accessible to all users). Categories with no active products are not included.",
+        "parameters": [
+          {
+            "name": "limitPerCategory",
+            "in": "query",
+            "description": "Maximum number of products returned per category (default: 8, max: 24)",
+            "schema": {
+              "type": "integer",
+              "default": 8,
+              "minimum": 1,
+              "maximum": 24
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Category-wise products fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "totalCategories": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "category": {
+                            "type": "object",
+                            "properties": {
+                              "_id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "slug": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "totalProducts": {
+                            "type": "integer",
+                            "description": "Total active products in the category (before the per-category slice)"
+                          },
+                          "products": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/components/schemas/Product"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "message": "Category-wise products fetched successfully",
+                  "totalCategories": 1,
+                  "data": [
+                    {
+                      "category": {
+                        "_id": "507f1f77bcf86cd799439012",
+                        "name": "Electronics",
+                        "slug": "electronics"
+                      },
+                      "totalProducts": 25,
+                      "products": [
+                        {
+                          "_id": "507f1f77bcf86cd799439011",
+                          "name": "Wireless Mouse",
+                          "price": 999.99,
+                          "description": "Ergonomic wireless mouse with USB receiver",
+                          "sku": "WM-1001",
+                          "stock": 50,
+                          "categoryId": "507f1f77bcf86cd799439012",
+                          "images": [
+                            "https://res.cloudinary.com/demo/image/upload/sample.jpg"
+                          ],
+                          "isActive": true,
+                          "tags": [
+                            "electronics",
+                            "accessories"
+                          ],
+                          "created_at": "2024-01-01T00:00:00.000Z",
+                          "updated_at": "2024-01-01T00:00:00.000Z"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/{id}": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Get product by ID",
+        "description": "Retrieves a specific product by its ID (accessible to all users)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Product ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Product"
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "message": "Product fetched successfully",
+                  "data": {
+                    "_id": "507f1f77bcf86cd799439011",
+                    "name": "Wireless Mouse",
+                    "price": 999.99,
+                    "description": "Ergonomic wireless mouse with USB receiver",
+                    "sku": "WM-1001",
+                    "stock": 50,
+                    "categoryId": "507f1f77bcf86cd799439012",
+                    "images": [
+                      "https://res.cloudinary.com/demo/image/upload/sample.jpg"
+                    ],
+                    "isActive": true,
+                    "tags": [
+                      "electronics",
+                      "accessories"
+                    ],
+                    "created_at": "2024-01-01T00:00:00.000Z",
+                    "updated_at": "2024-01-01T00:00:00.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid product ID format (CastError)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "success": false,
+                  "message": "Invalid ID format"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Product not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "success": false,
+                  "message": "Product not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Update a product",
+        "description": "Updates an existing product with optional image uploads to Cloudinary (Admin only). All fields are optional; only provided fields are updated.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Product ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Product name"
+                  },
+                  "price": {
+                    "type": "number",
+                    "description": "Product price (must be positive)"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Product description (optional)"
+                  },
+                  "sku": {
+                    "type": "string",
+                    "description": "Stock keeping unit (unique)"
+                  },
+                  "stock": {
+                    "type": "integer",
+                    "description": "Available stock (default: 0)",
+                    "minimum": 0
+                  },
+                  "categoryId": {
+                    "type": "string",
+                    "description": "ID of the category this product belongs to"
+                  },
+                  "isActive": {
+                    "type": "boolean",
+                    "description": "Whether the product is active (default: true)"
+                  },
+                  "tags": {
+                    "type": "array",
+                    "description": "Product tags",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "images": {
+                    "type": "array",
+                    "description": "Product image files to upload to Cloudinary (max 10)",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "description": "multipart/form-data body. All fields optional. Send image files in the 'images' field (max 10) to replace/add images."
+        },
+        "responses": {
+          "200": {
+            "description": "Product updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Product"
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "message": "Product updated successfully",
+                  "data": {
+                    "_id": "507f1f77bcf86cd799439011",
+                    "name": "Wireless Mouse",
+                    "price": 999.99,
+                    "description": "Ergonomic wireless mouse with USB receiver",
+                    "sku": "WM-1001",
+                    "stock": 50,
+                    "categoryId": "507f1f77bcf86cd799439012",
+                    "images": [
+                      "https://res.cloudinary.com/demo/image/upload/sample.jpg"
+                    ],
+                    "isActive": true,
+                    "tags": [
+                      "electronics",
+                      "accessories"
+                    ],
+                    "created_at": "2024-01-01T00:00:00.000Z",
+                    "updated_at": "2024-01-01T00:00:00.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid product ID format (CastError)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "success": false,
+                  "message": "Invalid ID format"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Product not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "success": false,
+                  "message": "Product not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Delete a product",
+        "description": "Deletes a product by its ID (Admin only)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Product ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "message": "Product deleted successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid product ID format (CastError)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "success": false,
+                  "message": "Invalid ID format"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Product not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "success": false,
+                  "message": "Product not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     },
     "/api/product-categories/add": {
       "post": {
-        "tags": ["Product Categories"],
+        "tags": [
+          "Product Categories"
+        ],
         "summary": "Create a new product category",
         "description": "Creates a new product category (Admin only)",
         "security": [
@@ -1248,7 +2263,10 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["name", "slug"],
+                "required": [
+                  "name",
+                  "slug"
+                ],
                 "properties": {
                   "name": {
                     "type": "string",
@@ -1330,7 +2348,10 @@
                 "example": {
                   "success": false,
                   "message": "Validation Error",
-                  "errors": ["Name is required", "Slug is required"]
+                  "errors": [
+                    "Name is required",
+                    "Slug is required"
+                  ]
                 }
               }
             }
@@ -1405,7 +2426,9 @@
     },
     "/api/product-categories": {
       "get": {
-        "tags": ["Product Categories"],
+        "tags": [
+          "Product Categories"
+        ],
         "summary": "Get all product categories",
         "description": "Retrieves all product categories with pagination and optional search (accessible to all users)",
         "parameters": [
@@ -1530,7 +2553,9 @@
         }
       },
       "post": {
-        "tags": ["Product Categories"],
+        "tags": [
+          "Product Categories"
+        ],
         "summary": "Create a new product category",
         "description": "Creates a new product category (Admin only)",
         "security": [
@@ -1544,7 +2569,10 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["name", "slug"],
+                "required": [
+                  "name",
+                  "slug"
+                ],
                 "properties": {
                   "name": {
                     "type": "string",
@@ -1626,7 +2654,10 @@
                 "example": {
                   "success": false,
                   "message": "Validation Error",
-                  "errors": ["Name is required", "Slug is required"]
+                  "errors": [
+                    "Name is required",
+                    "Slug is required"
+                  ]
                 }
               }
             }
@@ -1701,7 +2732,9 @@
     },
     "/api/orders/checkout": {
       "post": {
-        "tags": ["Orders"],
+        "tags": [
+          "Orders"
+        ],
         "summary": "Checkout and create order",
         "description": "Processes the user's cart, creates an order, and initiates payment via Stripe",
         "security": [
@@ -1715,7 +2748,9 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["shippingAddressId"],
+                "required": [
+                  "shippingAddressId"
+                ],
                 "properties": {
                   "shippingAddressId": {
                     "type": "string",
@@ -1848,7 +2883,9 @@
     },
     "/api/orders/me": {
       "get": {
-        "tags": ["Orders"],
+        "tags": [
+          "Orders"
+        ],
         "summary": "Get user's orders",
         "description": "Retrieves all orders for the authenticated user",
         "security": [
@@ -1929,7 +2966,9 @@
     },
     "/api/orders": {
       "get": {
-        "tags": ["Orders"],
+        "tags": [
+          "Orders"
+        ],
         "summary": "Get all orders (Admin)",
         "description": "Retrieves all orders with details (Admin only)",
         "security": [
@@ -2032,7 +3071,9 @@
     },
     "/api/orders/{id}": {
       "put": {
-        "tags": ["Orders"],
+        "tags": [
+          "Orders"
+        ],
         "summary": "Update order status (Admin)",
         "description": "Updates the payment or order status of an order (Admin only)",
         "security": [
@@ -2060,7 +3101,11 @@
                 "properties": {
                   "paymentStatus": {
                     "type": "string",
-                    "enum": ["PENDING", "PAID", "FAILED"],
+                    "enum": [
+                      "PENDING",
+                      "PAID",
+                      "FAILED"
+                    ],
                     "description": "Payment status"
                   },
                   "orderStatus": {
@@ -2234,7 +3279,9 @@
     },
     "/api/product-categories/{id}": {
       "get": {
-        "tags": ["Product Categories"],
+        "tags": [
+          "Product Categories"
+        ],
         "summary": "Get product category by ID",
         "description": "Retrieves a specific product category by its ID (accessible to all users)",
         "parameters": [
@@ -2350,7 +3397,9 @@
         }
       },
       "put": {
-        "tags": ["Product Categories"],
+        "tags": [
+          "Product Categories"
+        ],
         "summary": "Update a product category",
         "description": "Updates an existing product category (Admin only)",
         "security": [
@@ -2456,7 +3505,9 @@
                 "example": {
                   "success": false,
                   "message": "Validation Error",
-                  "errors": ["Name cannot be empty"]
+                  "errors": [
+                    "Name cannot be empty"
+                  ]
                 }
               }
             }
@@ -2551,7 +3602,9 @@
         }
       },
       "delete": {
-        "tags": ["Product Categories"],
+        "tags": [
+          "Product Categories"
+        ],
         "summary": "Delete a product category",
         "description": "Deletes a product category (Admin only)",
         "security": [
@@ -2705,10 +3758,11 @@
         }
       }
     },
-
     "/api/addresses/add": {
       "post": {
-        "tags": ["Addresses"],
+        "tags": [
+          "Addresses"
+        ],
         "summary": "Create user addresses",
         "description": "Creates shipping and billing addresses for the user",
         "security": [
@@ -2734,7 +3788,10 @@
                     "description": "Whether billing address is the same as shipping address"
                   }
                 },
-                "required": ["shippingAddress", "sameAsShipping"]
+                "required": [
+                  "shippingAddress",
+                  "sameAsShipping"
+                ]
               },
               "example": {
                 "shippingAddress": {
@@ -2813,10 +3870,11 @@
         }
       }
     },
-
     "/api/addresses": {
       "get": {
-        "tags": ["Addresses"],
+        "tags": [
+          "Addresses"
+        ],
         "summary": "Get user's addresses",
         "description": "Retrieves all addresses for the authenticated user",
         "security": [
@@ -2855,10 +3913,11 @@
         }
       }
     },
-
     "/api/addresses/{id}": {
       "get": {
-        "tags": ["Addresses"],
+        "tags": [
+          "Addresses"
+        ],
         "summary": "Get address by ID",
         "description": "Retrieves a specific address by its ID",
         "parameters": [
@@ -2900,7 +3959,9 @@
         }
       },
       "put": {
-        "tags": ["Addresses"],
+        "tags": [
+          "Addresses"
+        ],
         "summary": "Update address",
         "description": "Updates an existing address",
         "security": [
@@ -2957,7 +4018,9 @@
         }
       },
       "delete": {
-        "tags": ["Addresses"],
+        "tags": [
+          "Addresses"
+        ],
         "summary": "Delete address",
         "description": "Deletes an address",
         "security": [
@@ -3008,10 +4071,11 @@
         }
       }
     },
-
     "/api/addresses/{id}/default": {
       "patch": {
-        "tags": ["Addresses"],
+        "tags": [
+          "Addresses"
+        ],
         "summary": "Set default address",
         "description": "Sets an address as the default for its type",
         "security": [
@@ -3098,7 +4162,10 @@
           },
           "role": {
             "type": "string",
-            "enum": ["ADMIN", "USER"],
+            "enum": [
+              "ADMIN",
+              "USER"
+            ],
             "description": "User's role"
           }
         }
@@ -3129,7 +4196,10 @@
           },
           "role": {
             "type": "string",
-            "enum": ["ADMIN", "USER"],
+            "enum": [
+              "ADMIN",
+              "USER"
+            ],
             "description": "User's role"
           }
         }
@@ -3182,7 +4252,11 @@
           },
           "paymentStatus": {
             "type": "string",
-            "enum": ["PENDING", "PAID", "FAILED"],
+            "enum": [
+              "PENDING",
+              "PAID",
+              "FAILED"
+            ],
             "description": "Payment status"
           },
           "paymentIntentId": {
@@ -3413,7 +4487,11 @@
           },
           "paymentStatus": {
             "type": "string",
-            "enum": ["PENDING", "PAID", "FAILED"]
+            "enum": [
+              "PENDING",
+              "PAID",
+              "FAILED"
+            ]
           },
           "paymentIntentId": {
             "type": "string"
@@ -3478,7 +4556,11 @@
           },
           "paymentStatus": {
             "type": "string",
-            "enum": ["PENDING", "PAID", "FAILED"]
+            "enum": [
+              "PENDING",
+              "PAID",
+              "FAILED"
+            ]
           },
           "paymentIntentId": {
             "type": "string"

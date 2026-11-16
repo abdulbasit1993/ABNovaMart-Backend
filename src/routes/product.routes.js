@@ -4,6 +4,7 @@ const {
   addNewProduct,
   getAllProducts,
   getProductById,
+  getProductsGroupedByCategory,
   deleteProduct,
   updateProduct,
 } = require("../controllers/product.controller");
@@ -22,6 +23,9 @@ router.post(
 
 // GET /products - Get all products with pagination and search
 router.get("/", getAllProducts);
+
+// GET /grouped-by-category - Get all products grouped by category
+router.get("/grouped-by-category", getProductsGroupedByCategory);
 
 // GET /products/:id - Get a specific product by ID
 router.get("/:id", getProductById);

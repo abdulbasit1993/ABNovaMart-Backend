@@ -149,6 +149,71 @@ exports.getProductById = async (req, res) => {
   }
 };
 
+exports.getProductsGroupedByCategory = async (req, res) => {
+  try {
+    const limitPerCategory = Math.min(
+      parseInt(req.query.limitPerCategory) || 8,
+      24,
+    );
+
+    const grouped = await Product.aggregate([
+      { $match: { isActive: true } },
+      { $sort: { created_at: -1 }},
+      {
+        $group: {
+          _id: "$categoryId",
+          totalProducts: { $sum: 1 },
+          products: { $push: "$$ROOT" }, 
+        },
+      },
+      // keep only N products per category, keep full count for "View all (123)"
+      { $addFields: { products: { $slice: ["products", limitPerCategory] } } },
+      {
+        $addFields: {
+          products: {
+            $map: {
+              input: "$products",
+              as: "p",
+              in: { $mergeObjects: ["$$p", { price: { $toDouble: "$$p.price" } }] },
+            },
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "categories",
+          localField: "_id",
+          foreignField: "_id",
+          as: "category",
+        },
+      },
+      { $unwind: "$category" },
+      { 
+        $project: {
+          _id: 0,
+          category: { _id: "$category._id", name: "$category.name", slug: "$category.slug" },
+          totalProducts: 1,
+          products: 1
+      }
+    },
+    { $sort: { "category.name": 1 } },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      message: "Category-wise products fetched successfully",
+      totalCategories: grouped.length,
+      data: grouped
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+}
+
 exports.deleteProduct = async (req, res) => {
   try {
     const productId = req.params.id;
