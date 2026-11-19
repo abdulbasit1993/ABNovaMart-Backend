@@ -1,6 +1,7 @@
-const { Product } = require("../models");
+const { Product, Category } = require("../models");
 const { createProductSchema } = require("../validators/product.validator");
 const { uploadImageBuffer } = require("../services/cloudinary.service");
+const { default: mongoose } = require("mongoose");
 
 exports.addNewProduct = async (req, res) => {
   try {
@@ -76,8 +77,21 @@ exports.getAllProducts = async (req, res) => {
       ];
     }
 
-    // Filter by category
     if (categoryId) {
+      if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid category ID format"
+        });
+      }
+      const exists = await Category.findById(categoryId);
+      if (!exists) {
+        return res.status(404).json({
+          success: false,
+          message: "Category not found"
+        });
+      }
+
       query.categoryId = categoryId;
     }
 
@@ -87,7 +101,8 @@ exports.getAllProducts = async (req, res) => {
     const products = await Product.find(query)
       .skip(skip)
       .limit(limit)
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.status(200).json({
       success: true,

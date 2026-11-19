@@ -25,4 +25,11 @@ const productSchema = new mongoose.Schema(
   },
 );
 
+productSchema.set("toJSON", {
+  transform: (_doc, ret) => {
+    if (ret.price != null) ret.price = parseFloat(ret.price.toString());
+    return ret;
+  },
+});
+
 export const Product = mongoose.model("Product", productSchema);
